@@ -65,9 +65,9 @@ def get_pressure(lat, lon, url, dataset=None):
     var = dataset['slp']
     # numHours = var.array.shape[0]
     # Get all the data for this position at once
-    iLat, iLon = to_lat_long_index(lat, lon, var.array.shape)
+    i_lat, i_lon = to_lat_long_index(lat, lon, var.array.shape)
     # grid, t, la, lo = var[0:numHours, iLat, iLon]
-    data = var[:, iLat, iLon]
+    data = var[:, i_lat, i_lon]
     lat = data['lat'].data[0]
     lon = data['lon'].data[0]
     t = data['time']
@@ -93,7 +93,7 @@ def pressure_derivative(pressure: pd.array,
 # which helps a lot when developing the code.
 @pandas_cache
 def data_frame(url: str):
-    print(f'Getting {url}')
+    print(f'Getting: {url}')
     pressure, time_, lat, lon = get_pressure(51.05, 114.0677, url)
     # It seems like the time offset is not needed now?
     # time_offset = (-time.timezone) / (24.0 * 3600.0)
