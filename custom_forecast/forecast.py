@@ -1,12 +1,13 @@
-from pydap.client import open_url
-
-import urllib.request
 import urllib.error
 import urllib.parse
+import urllib.request
 from html.parser import HTMLParser
+
+from pydap.client import open_url
 
 
 class DDSParser(HTMLParser):
+
     def __init__(self):
         self.ddsFiles = []
         HTMLParser.__init__(self)
@@ -18,15 +19,15 @@ class DDSParser(HTMLParser):
                 if attr.lower() == 'href':
                     if '.dds' in value:
                         # Strip .dds from the end
-                        ddsPath = value[:-4]
-                        self.ddsFiles.append(ddsPath)
+                        dds_path = value[:-4]
+                        self.ddsFiles.append(dds_path)
         return
 
-    def listEntries(self, offsetStart, offsetEnd):
-        return self.ddsFiles[offsetStart:offsetEnd]
+    def list_entries(self, offset_start, offset_end):
+        return self.ddsFiles[offset_start:offset_end]
 
 
-def getUrls(offsetStart, offsetEnd):
+def get_urls(offset_start, offset_end):
     """
     Get the URL from the page, starting from the end, and count
     backward "offset" times
@@ -34,32 +35,36 @@ def getUrls(offsetStart, offsetEnd):
     # Note: This page should be used, but pydap does not support it's format yet:
     # http://portal.nccs.nasa.gov/cgi-lats4d/opendap.cgi?&path=/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_slv_Nx
     parser = DDSParser()
-    listUrl = 'http://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_slv_Nx'
-    list_ = urllib.request.urlopen(listUrl)
+    list_url = 'http://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_slv_Nx'
+    list_ = urllib.request.urlopen(list_url)
     html = list_.read()
     parser.feed(html.decode())
-    urls = parser.listEntries(offsetStart, offsetEnd)
+    urls = parser.list_entries(offset_start, offset_end)
     return urls
 
 
-def toLatLongIndex(lat, lon, shape):
-    iLat = int((shape[1]/2) + 1/0.25 * lat)
-    iLon = int((shape[2]/2) - 1/0.3125 * lon) + 1
-    return iLat, iLon
+def to_lat_long_index(lat, lon, shape):
+    i_lat = int((shape[1] / 2) + 1 / 0.25 * lat)
+    i_lon = int((shape[2] / 2) - 1 / 0.3125 * lon) + 1
+    return i_lat, i_lon
 
 
-def getPressure(lat, lon, url, dataset=None):
+def get_pressure(lat, lon, url, dataset=None):
     if not dataset:
         dataset = open_url(url)
     # slp = sea level pressure (I think?)
     var = dataset['slp']
     # numHours = var.array.shape[0]
-    # Get all of the data for this position at once
-    iLat, iLon = toLatLongIndex(lat, lon, var.array.shape)
+    # Get all the data for this position at once
+    iLat, iLon = to_lat_long_index(lat, lon, var.array.shape)
     # grid, t, la, lo = var[0:numHours, iLat, iLon]
-    grid, t, la, lo = var[:, iLat, iLon]
+    data = var[:, iLat, iLon]
+    lat = data['lat'].data[0]
+    lon = data['lon'].data[0]
+    t = data['time']
+    grid = data['slp']
     # Create a pressure list and a time list
-    pList = grid.data.reshape((grid.data.size,)) / 1000
-    tList = t.data.reshape((t.data.size,)) - 1
+    p_list = grid.data.reshape((grid.data.size, )) / 1000
+    t_list = t.data.reshape((t.data.size, )) - 1
     # Return the pressures and times, along with the lat/long from the forecast
-    return pList, tList, float(la[0]), float(lo[0])
+    return p_list, t_list, lat, lon
