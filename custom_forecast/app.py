@@ -57,6 +57,16 @@ def figures(template):
     return [figure, derivative_figure]
 
 
+def forecast_links():
+    links = [
+        dbc.Button('Env. Can.', className='me-2', href='https://weather.gc.ca/city/pages/ab-52_metric_e.html'),
+        dbc.Button('GDPS 3.5d', className='me-2', href='https://spotwx.com/products/grib_index.php?model=gem_reg_10km&lat=51.11753&lon=-113.93191&tz=America/Edmonton'),
+        dbc.Button('GDPS 10d', className='me-2', href='https://spotwx.com/products/grib_index.php?model=gem_glb_15km&lat=51.11753&lon=-113.93191&tz=America/Edmonton'),
+        dbc.Button('Windy', className='me-2', href='https://www.windy.com/51.115/-113.937?51.090,-113.937,12,m:e4macZh'),
+    ]  # yapf: disable
+    return html.Div(links)
+
+
 def app_layout():
     theme_switch = ThemeSwitchAIO(aio_id='theme',
                                   switch_props=dict(value=False),
@@ -67,13 +77,15 @@ def app_layout():
             html.P('Forecast for Calgary'),
             dcc.Graph(id='pressure-forecast', figure=go.Figure(layout=dict(template=DEFAULT_PLOT_TEMPLATE))),
             dcc.Graph(id='pressure-forecast-derivative', figure=go.Figure(layout=dict(template=DEFAULT_PLOT_TEMPLATE))),
+            html.P('Other forecasts'),
+            forecast_links(),
         ],
         fluid=True,
     )  # yapf: disable
     return layout
 
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+external_stylesheets = [dbc.themes.BOOTSTRAP]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = app_layout()
 
