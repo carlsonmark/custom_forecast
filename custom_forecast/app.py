@@ -1,5 +1,6 @@
 # Run this app with `python app.py` and
 # visit http://127.0.0.1:8000/ in your web browser.
+import argparse
 
 import dash
 import dash_bootstrap_components as dbc
@@ -7,6 +8,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from dash import Input, Output, dcc, html
 from dash_bootstrap_templates import ThemeSwitchAIO
+from waitress import serve
 
 from custom_forecast.forecast import latest_data_frames
 from custom_forecast.forecast_thread import ForecastThread
@@ -106,6 +108,27 @@ def update_graph_theme(toggle):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(prog='Custom Forecast',
+                                     description='Serve up a custom forecast',
+                                     epilog='Good luck!')
+    parser.add_argument('--host',
+                        default='localhost',
+                        help='The host to run the server on. '
+                        'Localhost is not accessible outside this computer. '
+                        'Use 0.0.0.0 to serve on all IP addresses.')
+    parser.add_argument('-p',
+                        '--port',
+                        default=8000,
+                        type=int,
+                        help='The port to serve on')
+    parser.add_argument('-d',
+                        '--debug',
+                        action='store_true',
+                        help='Enable debug mode')
+    args = parser.parse_args()
     forecast_thread = ForecastThread.instance()
     forecast_thread.start()
-    app.run_server(host='192.168.1.6', port=8000, debug=True)
+    if args.debug:
+        app.run_server(host=args.host, port=args.port, debug=True)
+    else:
+        serve(app.server, host=args.host, port=args.port)

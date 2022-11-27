@@ -7,5 +7,6 @@ plotly==5.11.0
 # pydap==3.3.0 # Get from github via submodule, it is not on pypi
 scipy==1.9.3
 numpy==1.23.5
+waitress==2.1.2
 yapf==0.32.0
 isort==5.10.1
