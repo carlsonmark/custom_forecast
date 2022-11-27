@@ -1,7 +1,8 @@
 dash==2.7.0
 dash-bootstrap-templates==1.0.7
-matplotlib==3.6.2
 pandas==1.5.2
+data_cache==0.1.6
+cachetools
 plotly==5.11.0
 # pydap==3.3.0 # Get from github via submodule, it is not on pypi
 scipy==1.9.3
