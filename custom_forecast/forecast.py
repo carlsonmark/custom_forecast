@@ -2,6 +2,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from html.parser import HTMLParser
+from threading import Lock
 
 import cachetools.func
 import numpy as np
@@ -10,6 +11,8 @@ from data_cache import pandas_cache
 from pydap.client import open_url
 from scipy.interpolate import InterpolatedUnivariateSpline
 from scipy.signal import savgol_filter
+
+data_source_lock = Lock()
 
 
 class DDSParser(HTMLParser):
@@ -45,6 +48,7 @@ def get_urls(offset_start, offset_end):
     # http://portal.nccs.nasa.gov/cgi-lats4d/opendap.cgi?&path=/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_slv_Nx
     parser = DDSParser()
     list_url = 'http://opendap.nccs.nasa.gov/dods/GEOS-5/fp/0.25_deg/fcast/tavg1_2d_slv_Nx'
+    print(f'Getting URLs from {list_url}')
     list_ = urllib.request.urlopen(list_url)
     html = list_.read()
     parser.feed(html.decode())
@@ -111,6 +115,7 @@ def data_frame(url: str):
 
 
 def latest_data_frames():
-    urls = get_urls(-5, None)
-    data_frames = [data_frame(url) for url in urls]
+    with data_source_lock:
+        urls = get_urls(-5, None)
+        data_frames = [data_frame(url) for url in urls]
     return data_frames

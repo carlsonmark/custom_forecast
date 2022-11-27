@@ -9,6 +9,7 @@ from dash import Input, Output, dcc, html
 from dash_bootstrap_templates import ThemeSwitchAIO
 
 from custom_forecast.forecast import latest_data_frames
+from custom_forecast.forecast_thread import ForecastThread
 
 DEFAULT_PLOT_TEMPLATE = 'cyborg'
 
@@ -105,4 +106,6 @@ def update_graph_theme(toggle):
 
 
 if __name__ == '__main__':
+    forecast_thread = ForecastThread.instance()
+    forecast_thread.start()
     app.run_server(host='192.168.1.6', port=8000, debug=True)
