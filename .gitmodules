@@ -1,0 +1,3 @@
+[submodule "custom_forecast/pydap"]
+	path = custom_forecast/pydap
+	url = https://github.com/pydap/pydap
