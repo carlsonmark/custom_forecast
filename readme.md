@@ -1,5 +1,7 @@
 A Plotly Dash based custom forecast. Migraine related forecasting.
 
+![Application preview](custom-forecast.png)
+
 Setup
 -----
 
